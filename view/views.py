@@ -35,11 +35,10 @@ class StudentResultView(View):
     def get(self, request):
         data = request.GET
         context = {
-            'total': data['total'],
-            'average': data['average']
+            'total': request.GET['total'],
+            'average': request.GET['average']
         }
         return render(request, 'task/student/result.html', context)
-
 
 # 회원의 이름과 나이를 전달받는다.
 # 전달받은 이름과 나이를 아래와 같은 형식으로 변경시킨다.
@@ -49,26 +48,49 @@ class StudentResultView(View):
 # 이름과 나이 작성: task/member/register.html
 # 결과 출력: task/member/result.html
 
-class MemberFormView(View):
+
+class MemberRegisterFormView(View):
     def get(self, request):
         return render(request, 'task/member/register.html')
 
 
-class MemberView(View):
+class MemberRegisterView(View):
     def get(self, request):
         data = request.GET
-        name = data['name']
-        age = data['age']
+        data = {
+            'name': data['name'],
+            'age': data['age']
+        }
+        result = f'{data["name"]}님은 {data["age"]}살!'
+        return redirect(f'/member/result?result={result}')
 
-        string = f'{name}님은 {age}살!'
-
-        return redirect(f'/member/result?string={string}')
-
+    def post(self, request):
+        data = request.POST
+        data = {
+            'name': data['name'],
+            'age': data['age']
+        }
+        result = f'{data["name"]}님은 {data["age"]}살!'
+        return redirect(f'/member/result?result={result}')
 
 class MemberResultView(View):
     def get(self, request):
-        data = request.GET
-        context = {
-            'string': data['string']
-        }
-        return render(request, 'task/member/result.html', context)
+        result = request.GET['result']
+
+        return render(request, 'task/member/result.html', {'result': result})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -20,13 +20,12 @@
         </div>
     </div>
 </header>
-
-<form action="{% url 'post:update' post_id=post.id %}" method="post" name="update-form">
+<form action="{% url 'post:update' %}" method="post" name="update-form">
     {% csrf_token %}
-    
+    <input type="hidden" name="id" value="{{ post.id }}">
     <input type="text" name="post-title" placeholder="게시글 제목" value="{{ post.post_title }}">
     <p>게시글 내용</p>
-    <textarea name="post-content" cols="30" rows="10" style="resize: none" >{{ post.post_content }}</textarea>
+    <textarea name="post-content" cols="30" rows="10" style="resize: none">{{ post.post_content }}</textarea>
     <button>완료</button>
 </form>
 </body>

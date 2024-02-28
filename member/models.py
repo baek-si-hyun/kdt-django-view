@@ -8,3 +8,4 @@ class Member(models.Model):
 
     class Meta:
         db_table = 'tbl_member'
+

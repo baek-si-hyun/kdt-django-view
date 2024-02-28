@@ -4,7 +4,6 @@ from member.models import Member
 
 
 class MemberSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Member
-        fields = "__all__"
+        fields = '__all__'
