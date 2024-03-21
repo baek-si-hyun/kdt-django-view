@@ -20,3 +20,12 @@ class Post(models.Model):
 
     def get_absolute_url(self):
         return f'/post/detail/?id={self.id}'
+
+
+class PostFile(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.PROTECT, null=False)
+    path = models.ImageField(null=False, blank=False, upload_to='post/%Y/%m/%d')
+
+    class Meta:
+        db_table = 'tbl_post_file'
+

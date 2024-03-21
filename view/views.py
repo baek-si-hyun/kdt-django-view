@@ -2,6 +2,8 @@
 # 총점과 평균을 화면에 출력한다.
 from django.shortcuts import render, redirect
 from django.views import View
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 
 # form태그는 get방식을 사용한다.
@@ -73,12 +75,35 @@ class MemberRegisterView(View):
         result = f'{data["name"]}님은 {data["age"]}살!'
         return redirect(f'/member/result?result={result}')
 
+
 class MemberResultView(View):
     def get(self, request):
         result = request.GET['result']
 
         return render(request, 'task/member/result.html', {'result': result})
 
+
+# 상품 정보
+# 번호, 상품명, 가격, 재고
+# 상품 1개 정보를 REST 방식으로 설계한 뒤
+# 화면에 출력하기
+# 예시)
+# products/1
+# task/product/product.html
+class ProductDetailView(View):
+    def get(self, request):
+        return render(request, 'task/product/product.html')
+
+
+class ProductDetailAPI(APIView):
+    def get(self, request, product_id):
+        data = {
+            'id': product_id,
+            'product_name': '마우스',
+            'product_price': 50000,
+            'product_stock': 50
+        }
+        return Response(data)
 
 
 

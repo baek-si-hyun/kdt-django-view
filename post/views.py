@@ -1,11 +1,14 @@
 import math
 
 from django.db import transaction
+from django.db.models import F
 from django.shortcuts import render, redirect
 from django.views import View
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from member.models import Member
-from post.models import Post
+from post.models import Post, PostFile
 
 
 class PostWriteView(View):
@@ -15,6 +18,11 @@ class PostWriteView(View):
     @transaction.atomic
     def post(self, request):
         data = request.POST
+        # input 태그 하나 당 파일 1개일 때
+        # file = request.FILES
+
+        # input 태그 하나에 여러 파일일 때(multiple), getlist('{input태그 name값}')
+        files = request.FILES.getlist('upload-file')
 
         member = Member(**request.session['member'])
 
@@ -24,6 +32,12 @@ class PostWriteView(View):
             'member': member
         }
         post = Post.objects.create(**data)
+
+        for file in files:
+            PostFile.objects.create(post=post, path=file)
+
+        # for key in file:
+        #     PostFile.objects.create(post=post, path=file[key])
 
         return redirect(post.get_absolute_url())
 
@@ -36,7 +50,8 @@ class PostDetailView(View):
         post.save(update_fields=['post_view_count'])
 
         context = {
-            'post': post
+            'post': post,
+            'post_files': list(post.postfile_set.all())
         }
         return render(request, 'post/detail.html', context)
 
@@ -70,18 +85,34 @@ class PostDeleteView(View):
 
 class PostListView(View):
     def get(self, request):
+        return render(request, 'post/list.html')
+
+
+class PostListAPI(APIView):
+    def get(self, request, page):
         row_count = 5
-        page = request.GET.get('page')
-        if page is None:
-            page = 1
 
         offset = (page - 1) * row_count
         limit = page * row_count
+        columns = [
+            'id',
+            'post_title',
+            'post_content',
+            'post_view_count',
+            'member_name'
+        ]
+        posts = Post.enabled_objects\
+                    .annotate(member_name=F('member__member_name'))\
+                    .values(*columns)[offset:limit]
 
-        posts = Post.enabled_objects.all()[offset:limit]
-        return render(request, 'post/list.html', {'posts': posts})
+        has_next = Post.enabled_objects.filter()[limit:limit + 1].exists()
 
+        post_info = {
+            'posts': posts,
+            'hasNext': has_next
+        }
 
+        return Response(post_info)
 
 
 
