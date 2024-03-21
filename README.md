@@ -1,4 +1,4 @@
-# queryset
+# QUERYSET
 
 ## CRUD
 
